@@ -28,8 +28,12 @@ View::View(QWidget *parent) : QWidget(parent)
 
     m_dropList = new QComboBox(this);
     m_dropList->addItem("MyImage");
-    m_dropList->addItem("Cannon");
-    m_dropList->addItem("Gidan");
+    m_dropList->addItem("10 Cell Row");
+    m_dropList->addItem("Small Exploder");
+    m_dropList->addItem("Exploder");
+    m_dropList->addItem("Spaceship");
+    m_dropList->addItem("Tumbler");
+    m_dropList->addItem("Gosper Cannon");
     m_verticalBox->addWidget(m_dropList);
 
     // Create clickable label and set the image for the first time

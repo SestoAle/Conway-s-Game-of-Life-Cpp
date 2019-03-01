@@ -1,5 +1,10 @@
 <RCC>
     <qresource prefix="/">
-        <file>img/img.jpg</file>
+        <file>img/Gosper Cannon.png</file>
+        <file>img/Tumbler.png</file>
+        <file>img/Spaceship.png</file>
+        <file>img/Exploder.png</file>
+        <file>img/Small Exploder.png</file>
+        <file>img/10 Cell Row.png</file>
     </qresource>
 </RCC>

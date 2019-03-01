@@ -21,6 +21,7 @@ Controller::Controller(Model* model, View* view)
     connect(m_view->getClearButton(), SIGNAL(clicked()), this, SLOT(clear()));
     connect(m_view->getSaveButton(), SIGNAL(clicked()), this, SLOT(save()));
     connect(m_view->getLoadButton(), SIGNAL(clicked()), this, SLOT(load()));
+    connect(m_view->getDropList(), SIGNAL(activated(int)), this, SLOT(load()));
 
     m_timer = new QTimer();
     connect(m_timer, SIGNAL(timeout()), this, SLOT(applyFilter()));
