@@ -10,10 +10,15 @@ SOURCES += \
     view.cpp \
     clickablelabel.cpp \
     controller.cpp \
-    model.cpp
+    model.cpp \
+
 
 HEADERS += \
     view.h \
     clickablelabel.h \
     controller.h \
-    model.h
+    model.h \
+
+RESOURCES += \
+    img.qrc
+

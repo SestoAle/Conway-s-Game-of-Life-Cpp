@@ -8,24 +8,47 @@ using namespace std;
 
 View::View(QWidget *parent) : QWidget(parent)
 {
-    this->setFixedSize(500, 500);
+    this->setFixedSize(500, 700);
 
     // Create vertical layout container for the image
     m_verticalBox = new QVBoxLayout(this);
 
     m_startButton = new QPushButton("Start", this);
     m_startButton->setCheckable(true);
-
     m_verticalBox->addWidget(m_startButton);
+
+    m_clearButton = new QPushButton("Clear", this);
+    m_verticalBox->addWidget(m_clearButton);
+
+    m_saveButton = new QPushButton("Save", this);
+    m_verticalBox->addWidget(m_saveButton);
+
+    m_loadButton = new QPushButton("Load", this);
+    m_verticalBox->addWidget(m_loadButton);
+
+    m_dropList = new QComboBox(this);
+    m_dropList->addItem("MyImage");
+    m_dropList->addItem("Cannon");
+    m_dropList->addItem("Gidan");
+    m_verticalBox->addWidget(m_dropList);
 
     // Create clickable label and set the image for the first time
     m_label = new ClickableLabel(this);
     m_verticalBox->addWidget(m_label);
 
-    m_slider = new QSlider(Qt::Horizontal,this);
-    m_verticalBox->addWidget(m_slider);
-    m_slider->setRange(10,60);
-    m_slider->setValue(30);
+    m_fpsSlider = new QSlider(Qt::Horizontal,this);
+    m_verticalBox->addWidget(m_fpsSlider);
+    m_fpsSlider->setRange(10,60);
+    m_fpsSlider->setValue(30);
+
+    m_zoomSlider = new QSlider(Qt::Horizontal,this);
+    m_verticalBox->addWidget(m_zoomSlider);
+    m_zoomSlider->setRange(5,100);
+    m_zoomSlider->setValue(zoom/2);
+
+    m_heatmapButton = new QRadioButton(this);
+    m_heatmapButton->setChecked(false);
+    m_verticalBox->addWidget(m_heatmapButton);
 }
 
 View::~View()
@@ -46,8 +69,12 @@ void View::setPixmap(QPixmap pixmap)
 
 void View::updatePixmap()
 {
-    m_pixmap = m_pixmap.scaled(m_label->size());
-    m_label->setPixmap(m_pixmap);
+    int length = m_pixmap.width();
+    QRect rect(length/2 - zoom/2, length/2 - zoom/2, zoom, zoom);
+    QPixmap cropped = m_pixmap.copy(rect);
+    cropped = cropped.scaled(m_label->size());
+
+    m_label->setPixmap(cropped);
 }
 
 ClickableLabel* View::getClickableLabel() const
@@ -55,12 +82,42 @@ ClickableLabel* View::getClickableLabel() const
     return m_label;
 }
 
-QPushButton* View::getButton() const
+QPushButton* View::getStartButton() const
 {
     return m_startButton;
 }
 
-QSlider* View::getSlider() const
+QPushButton* View::getClearButton() const
 {
-    return m_slider;
+    return m_clearButton;
+}
+
+QPushButton* View::getLoadButton() const
+{
+    return m_loadButton;
+}
+
+QPushButton* View::getSaveButton() const
+{
+    return m_saveButton;
+}
+
+QComboBox* View::getDropList() const
+{
+    return m_dropList;
+}
+
+QSlider* View::getFpsSlider() const
+{
+    return m_fpsSlider;
+}
+
+QSlider* View::getZoomSlider() const
+{
+    return m_zoomSlider;
+}
+
+QRadioButton* View::getHeatmapButton() const
+{
+    return m_heatmapButton;
 }

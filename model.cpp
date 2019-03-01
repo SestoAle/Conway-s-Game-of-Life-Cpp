@@ -1,6 +1,7 @@
 #include "model.h"
 #include <iostream>
 #include <QPainter>
+#include <QMessageBox>
 using namespace std;
 
 Model::Model()
@@ -11,6 +12,7 @@ Model::Model()
 Model::~Model()
 {
     delete m_image;
+    delete[] m_matrix;
 }
 
 void Model::setImage(QImage *image)
@@ -25,28 +27,35 @@ QImage* Model::getImage() const
 
 void Model::changePixel(int x, int y)
 {
-    if(m_image->pixel(x,y) == black)
+    if(m_matrix[x][y] == 0)
     {
-        m_image->setPixel(x, y, white);
+        changePixelWhite(x,y);
     }
     else
     {
-        m_image->setPixel(x, y, black);
+        changePixelBlack(x,y);
     }
 }
 
 void Model::changePixelBlack(int x, int y)
 {
-    m_image->setPixel(x, y, black);
+    m_matrix[x][y] = 0;
+    renderImage();
 }
 
 void Model::changePixelWhite(int x, int y)
 {
-    m_image->setPixel(x, y, white);
+    m_matrix[x][y] = 1;
+    renderImage();
 }
 
 void Model::initializeImage()
 {
+    m_matrix = new int* [size];
+    for(int i = 0; i < size; i ++)
+    {
+        m_matrix[i] = new int [size];
+    }
     // Initialize the image to be all black
     m_image = new QImage(size, size, QImage::Format_Grayscale8);
 
@@ -55,6 +64,7 @@ void Model::initializeImage()
         for(int j = 0; j < m_image->height(); j++)
         {
             m_image->setPixel(i,j,black);
+            m_matrix[i][j] = 0;
         }
     }
 }
@@ -68,9 +78,17 @@ QImage paddedImage(const QImage & source, int padWidth, T padValue) {
   return padded;
 }
 
-int** imageToBitmapMatrix(const QImage& source)
+int** imageToBitmapMatrix(const QImage& source, bool withPadding = true)
 {
-    QImage padded = paddedImage(source, 1, 0);
+    QImage padded;
+    if(withPadding)
+    {
+        padded = paddedImage(source, 1, 0);
+    }
+    else
+    {
+        padded = paddedImage(source, 0, 0);
+    }
     int** matrix = new int* [padded.width()];
     for(int i = 0; i < padded.width(); ++i)
         matrix[i] = new int[padded.height()];
@@ -121,7 +139,7 @@ int** Model::convolve(int** matrix)
     return newMatrix;
 }
 
-void Model::tryEvolve(int** matrix)
+int** Model::tryEvolve(int** matrix)
 {
     for(int i = 0; i < m_image->width(); i++)
         for(int j =  0; j < m_image->height(); j++)
@@ -150,13 +168,54 @@ void Model::tryEvolve(int** matrix)
                     pixel = 0;
                 }
             }
-            if(pixel == 1)
+            matrix[i][j] = pixel;
+        }
+
+    return matrix;
+}
+
+void matrixSum(int** source, int** dst, int size)
+{
+    for(int i = 0; i < size; i ++)
+        for(int j = 0; j < size; j++)
+        {
+            if(dst[i][j] + source[i][j] < 255)
+                dst[i][j] += source[i][j];
+        }
+}
+
+void matrixMul(int** source, int** dst, int size)
+{
+    for(int i = 0; i < size; i ++)
+        for(int j = 0; j < size; j++)
+        {
+            if(dst[i][j] * source[i][j] < 255)
+                dst[i][j] *= source[i][j];
+        }
+}
+
+void Model::renderImage()
+{
+    for(int i = 0; i < m_image->width(); i ++)
+        for(int j = 0; j < m_image->height(); j++)
+        {
+            int value = m_matrix[i][j];
+            if(value >= 1)
             {
-                m_image->setPixel(i,j, white);
+                if(heatmap)
+                {
+                    int grayValue = value*2 + 30;
+                    if(grayValue > 255)
+                        grayValue = 255;
+                    uint grayLevel = qRgb(grayValue, grayValue, grayValue);
+                    m_image->setPixel(i,j,grayLevel);
+                }
+                else
+                    m_image->setPixel(i,j,white);
             }
             else
             {
-                m_image->setPixel(i,j, black);
+                m_image->setPixel(i,j,black);
             }
         }
 }
@@ -167,10 +226,33 @@ void Model::filter()
 
     int** newMatrix = convolve(matrix);
 
-    tryEvolve(newMatrix);
+    newMatrix = tryEvolve(newMatrix);
+
+    matrixMul(newMatrix, m_matrix, size);
+    matrixSum(newMatrix, m_matrix, size);
+
+    renderImage();
 
     delete [] matrix;
     delete [] newMatrix;
 }
+
+void Model::saveImage()
+{
+    m_image->save("myImage.png", "PNG");
+}
+
+bool Model::loadImage(QString name)
+{
+    bool loaded = m_image->load(name);
+    if(loaded)
+    {
+        m_matrix = imageToBitmapMatrix(*m_image, false);
+        renderImage();
+    }
+    return loaded;
+}
+
+
 
 

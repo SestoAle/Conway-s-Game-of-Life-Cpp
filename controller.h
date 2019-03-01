@@ -32,6 +32,11 @@ public slots:
     void applyFilter();
     void startLive();
     void changeFps(int fps);
+    void changeZoom(int zoom);
+    void changeHeatmap(bool heatmap);
+    void clear();
+    void save();
+    void load();
 };
 
 #endif // CONTROLLER_H

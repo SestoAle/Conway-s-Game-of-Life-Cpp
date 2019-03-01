@@ -8,6 +8,8 @@
 #include <QWindow>
 #include <QLabel>
 #include <QSlider>
+#include <QRadioButton>
+#include <QComboBox>
 
 #include "clickablelabel.h"
 
@@ -20,8 +22,15 @@ public:
     void setPixmap(QPixmap pixmap);
     void updatePixmap();
     ClickableLabel* getClickableLabel() const;
-    QPushButton* getButton() const;
-    QSlider* getSlider() const;
+    QPushButton* getStartButton() const;
+    QPushButton* getClearButton() const;
+    QPushButton* getSaveButton() const;
+    QPushButton* getLoadButton() const;
+    QComboBox* getDropList() const;
+    QSlider* getFpsSlider() const;
+    QSlider* getZoomSlider() const;
+    QRadioButton* getHeatmapButton() const;
+    int zoom = 100;
 
 private:
     QWidget* m_mainWindow;
@@ -29,8 +38,14 @@ private:
     QButtonGroup* m_buttonGroup;
     QPixmap m_pixmap;
     QPushButton* m_startButton;
+    QPushButton* m_clearButton;
+    QPushButton* m_saveButton;
+    QPushButton* m_loadButton;
+    QComboBox* m_dropList;
     ClickableLabel* m_label;
-    QSlider* m_slider;
+    QSlider* m_fpsSlider;
+    QSlider* m_zoomSlider;
+    QRadioButton* m_heatmapButton;
 
 protected:
     void resizeEvent(QResizeEvent* event);
