@@ -27,6 +27,7 @@ QImage* Model::getImage() const
 
 void Model::changePixel(int x, int y)
 {
+    // Change othe color pixel to white/black at position x,y
     if(m_matrix[x][y] == 0)
     {
         changePixelWhite(x,y);
@@ -39,26 +40,32 @@ void Model::changePixel(int x, int y)
 
 void Model::changePixelBlack(int x, int y)
 {
+    // Change matrix value representing the life of cells
     m_matrix[x][y] = 0;
-    renderImage();
+    // And update image depending on matrix values
+    updateImage();
 }
 
 void Model::changePixelWhite(int x, int y)
 {
+    // Change matrix value representing the life of cells
     m_matrix[x][y] = 1;
-    renderImage();
+    // And update image depending on matrix values
+    updateImage();
 }
 
 void Model::initializeImage()
 {
+    // Initialize structures
+    // First initialize the matri structure representing the life of all cells
+    // Then initialize the image to be all black
     m_matrix = new int* [size];
     for(int i = 0; i < size; i ++)
     {
         m_matrix[i] = new int [size];
     }
-    // Initialize the image to be all black
-    m_image = new QImage(size, size, QImage::Format_Grayscale8);
 
+    m_image = new QImage(size, size, QImage::Format_Grayscale8);
     for(int i = 0; i < m_image->width(); i++)
     {
         for(int j = 0; j < m_image->height(); j++)
@@ -71,16 +78,20 @@ void Model::initializeImage()
 
 template <typename T>
 QImage paddedImage(const QImage & source, int padWidth, T padValue) {
-  QImage padded{source.width() + 2*padWidth, source.height() + 2*padWidth, source.format()};
-  padded.fill(padValue);
-  QPainter p{&padded};
-  p.drawImage(QPoint(padWidth, padWidth), source);
-  return padded;
+    // Add padding to an image
+    QImage padded{source.width() + 2*padWidth, source.height() + 2*padWidth, source.format()};
+    padded.fill(padValue);
+    QPainter p{&padded};
+    p.drawImage(QPoint(padWidth, padWidth), source);
+    return padded;
 }
 
 int** imageToBitmapMatrix(const QImage& source, bool withPadding = true)
 {
+    // Convert an image to a bitmap matrix
+
     QImage padded;
+    // Add/not add padding
     if(withPadding)
     {
         padded = paddedImage(source, 1, 0);
@@ -89,6 +100,7 @@ int** imageToBitmapMatrix(const QImage& source, bool withPadding = true)
     {
         padded = paddedImage(source, 0, 0);
     }
+    // Initialize 2D matrix bitmap
     int** matrix = new int* [padded.width()];
     for(int i = 0; i < padded.width(); ++i)
         matrix[i] = new int[padded.height()];
@@ -110,8 +122,9 @@ int** imageToBitmapMatrix(const QImage& source, bool withPadding = true)
     return matrix;
 }
 
-int** Model::convolve(int** matrix)
+int** Model::correlation(int** matrix)
 {
+    // Matrix correlation
     // Create 2D kernel
     int kernel[3][3] = {
         {2,2,2},
@@ -123,7 +136,7 @@ int** Model::convolve(int** matrix)
     for(int i = 0; i < m_image->width(); ++i)
         newMatrix[i] = new int[m_image->height()];
 
-    // Make Convolution
+    // Make correlation
     for(int x = 1; x < m_image->width() + 1; x++)
         for(int y = 1; y < m_image->height() + 1; y++)
         {
@@ -141,6 +154,9 @@ int** Model::convolve(int** matrix)
 
 int** Model::tryEvolve(int** matrix)
 {
+    // If the pixel is even, than the pixel was dead and the value/2 is the number of the neighboours
+    // If the pixel is odd, than the pixel was alive and the (value - 1)/2 is the number of the neighbours
+    // Map the pixel to the new stage
     for(int i = 0; i < m_image->width(); i++)
         for(int j =  0; j < m_image->height(); j++)
         {
@@ -176,6 +192,7 @@ int** Model::tryEvolve(int** matrix)
 
 void matrixSum(int** source, int** dst, int size)
 {
+    // Sum of matrices
     for(int i = 0; i < size; i ++)
         for(int j = 0; j < size; j++)
         {
@@ -186,6 +203,7 @@ void matrixSum(int** source, int** dst, int size)
 
 void matrixMul(int** source, int** dst, int size)
 {
+    // Multiplication of matrix
     for(int i = 0; i < size; i ++)
         for(int j = 0; j < size; j++)
         {
@@ -194,8 +212,10 @@ void matrixMul(int** source, int** dst, int size)
         }
 }
 
-void Model::renderImage()
+void Model::updateImage()
 {
+    // Update the image depending on the life of the cells saved in matrix structure
+    // Compute the color depending on the heatmap flag
     for(int i = 0; i < m_image->width(); i ++)
         for(int j = 0; j < m_image->height(); j++)
         {
@@ -222,16 +242,24 @@ void Model::renderImage()
 
 void Model::filter()
 {
+    // Create a bitmap matrix from image
     int** matrix = imageToBitmapMatrix(*m_image);
 
-    int** newMatrix = convolve(matrix);
+    // Compute the new matrix with the cells new stage
+    int** newMatrix = correlation(matrix);
 
+    //  # Map the new image with the try_evolve() method
     newMatrix = tryEvolve(newMatrix);
 
+    // Compute the pixel that was living on the previous frame, add them to the new image and re-render it
+    // Multiply the old image with the new image. The result is the pixel that was alive in the previous frame
     matrixMul(newMatrix, m_matrix, size);
+    // Add the still living image to the new image.
+    // The result is the new state with the values of how long the cells are alive
     matrixSum(newMatrix, m_matrix, size);
 
-    renderImage();
+    // Update the new values in the image
+    updateImage();
 
     delete [] matrix;
     delete [] newMatrix;
@@ -239,16 +267,18 @@ void Model::filter()
 
 void Model::saveImage()
 {
+    // Save the image saved in m_image structure
     m_image->save("myImage.png", "PNG");
 }
 
 bool Model::loadImage(QString name)
 {
+    // Load an image from resource and save it to m_image structure
     bool loaded = m_image->load(name);
     if(loaded)
     {
         m_matrix = imageToBitmapMatrix(*m_image, false);
-        renderImage();
+        updateImage();
     }
     return loaded;
 }

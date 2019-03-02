@@ -4,6 +4,11 @@
 #include <QObject>
 #include <QImage>
 
+// The class represent the model and the main logic behind the Game of Life.
+// It has a matrix structure that save the life of the cell and a image representing
+// this life.
+// It define all the methods that evolve the cells life.
+// It has no reference to the vew.
 class Model: public QObject
 {
     Q_OBJECT
@@ -18,7 +23,7 @@ public:
     void changePixel(int x, int y);
     void changePixelWhite(int x, int y);
     void changePixelBlack(int x, int y);
-    void renderImage();
+    void updateImage();
     int size = 300;
     int fps = 30;
     bool heatmap = false;
@@ -26,7 +31,7 @@ public:
     void initializeImage();
 
 private:
-    int** convolve(int** matrix);
+    int** correlation(int** matrix);
     int** tryEvolve(int** matrix);
 
     int** m_matrix;

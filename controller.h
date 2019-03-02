@@ -6,6 +6,9 @@
 #include "view.h"
 #include "model.h"
 
+// This class represent the link between model and the view.
+// It defines all the methods that link the view/user events to the model functionalities.
+// It has both the references: the view and the model.
 class Controller: public QObject
 {
     Q_OBJECT
