@@ -1,5 +1,5 @@
 # Conway's Game of Life
-An implementation of Conway's Game of Like in C++.
+An implementation of Conway's Game of Like in C++ for **Human Computer Interaction** class.
 
 The implementation follows the **Model-View-Controller** architectural pattern.
 
