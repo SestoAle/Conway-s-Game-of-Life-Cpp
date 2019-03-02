@@ -17,5 +17,24 @@ The initial pattern constitutes the seed of the system. The first generation is 
 <img  src="https://i.imgur.com/P45WdoT.jpg" width="30%" height="30%"/>
 </p>
 
+## Functionalities
+You can draw your starting configuration with mouse clicks and save the image to load it at any time later; you can also 
+load some pre-built configurations.
+
+<p align="center">
+<img  src="https://media.giphy.com/media/1wPS7yqjFj2luoJTN7/giphy.gif" width="50%" height="50%"/>
+</p>
+
+The app provides some extra features:
+
+* you can zoom out/in from a 10x10 cells map to 200x200;
+* you can speedup time increasing frame rate, starting from 10 fps to 60;
+* you can see the cells lifetime pressing the ```heatmap``` toggle.
+
+## Requirements
+| Software | Version | Required |
+| --------|-----------------| ---------|
+| **Qt** | >= v5.12 | Yes|
+
 ## License
 Licensed under the term of [MIT License](https://github.com/SestoAle/Conway-s-Game-of-Life-C/blob/master/LICENSE).
